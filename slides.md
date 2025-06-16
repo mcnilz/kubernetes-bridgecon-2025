@@ -1,32 +1,23 @@
 ---
-# You can also start simply with 'default'
-theme: bricks
-# random image from a curated Unsplash collection by Anthony
-# like them? see https://unsplash.com/collections/94734566/slidev
-background: https://cover.sli.dev
-# some information about your slides (markdown enabled)
-title: Welcome to Slidev
-info: |
-  ## Kubernetes für bridgeCon 2025
-# apply unocss classes to the current slide
-class: text-center
-# https://sli.dev/features/drawing
+theme: dracula
+title: Kubernetes für bridgeCon 2025
 drawings:
   persist: false
-# slide transition: https://sli.dev/guide/animations.html#slide-transitions
 transition: slide-left
-# enable MDC Syntax: https://sli.dev/features/mdc
 mdc: true
-# open graph
-# seoMeta:
-#  ogImage: https://cover.sli.dev
+
+layout: image
+image: /cover.png
 ---
 
-# Kubernetes – Praxis für Entwickler
+---
+class: text-center
+---
+
+# Kubernetes – Ein grober Überblick
 
 <!--
-Willkommen! Heute geht es um Kubernetes, speziell aus der Sicht von Entwicklern.  
-Ihr kennt alle Docker, deshalb steigen wir gleich in die Praxis und Use-Cases für euch ein.
+Zielgruppe Entwickler mit Docker-Erfahrung
 -->
 
 ---
@@ -34,19 +25,19 @@ Ihr kennt alle Docker, deshalb steigen wir gleich in die Praxis und Use-Cases f�
 ## Agenda
 
 - Warum Kubernetes?
-- Die wichtigsten Grundlagen
-- Helm & Flux im Schnelldurchlauf
-- Live-Demo: GitOps mit Flux **ODER** Monitoring mit Prometheus & Grafana
-- Fragen & Diskussion
-
-<!--
-Kurzer Überblick über die Themen heute.  
-Demo-Schwerpunkt wählen wir je nach Interesse – ich zeige gleich beide Optionen.
--->
+- Einstieg & Installation: Praxis-Tipps
+- Deklarative Konfiguration & Anwendung mit kubectl
+- Basis-Ressourcen: Pod, Deployment, StatefulSet, Service
+- Konfigurations- und Speicherressourcen: ConfigMap, Secret, Volumes
+- Tools: kubectl & Lens
+- (Live-Demo: Ressourcen anwenden & beobachten)
+- Q&A & Nachfragen
 
 ---
 
 # Warum Kubernetes?
+
+<v-clicks>
 
 - 🤖 **Automatisierung & Selbstheilung**
 - 🚀 **Skalierung auf Knopfdruck**
@@ -56,6 +47,8 @@ Demo-Schwerpunkt wählen wir je nach Interesse – ich zeige gleich beide Option
 - 🛡️ **Rollen & Rechte (RBAC)**
 - 💡 **Großes Ökosystem & Community**
 
+</v-clicks>
+
 <!--
 
 - Automatisierung: Kubernetes erkennt, wenn Container oder Pods ausfallen und startet sie neu.  
@@ -64,45 +57,47 @@ Demo-Schwerpunkt wählen wir je nach Interesse – ich zeige gleich beide Option
 - Portabilität: Gleicher Stack auf Azure, AWS, GCP, on-prem oder lokal – keine Cloud-Bindung!
 - Deklarativ: Infrastruktur als Code, alles nachvollziehbar und versionierbar.
 - RBAC: Feingranulare Rechte, mehrere Teams können sicher im selben Cluster arbeiten.
-- Ökosystem: Riesige Community, viele Tools und Tutorials – keine Insellösung!
+- Ökosystem: Riesige Community, viele Tools und Tutorials – siehe https://github.com/tomhuang12/awesome-k8s-resources
 -->
 
 ---
 
-# Deklarative Konfiguration & Anwendung mit kubectl
+# Einstieg & Installation: Praxis-Tipps
 
-- Ressourcen als YAML definieren („Infrastructure as Code“)
-- Änderungen versionierbar & nachvollziehbar
-- Anwendung per Befehl:  
-  `kubectl apply -f <datei.yaml>`
+<v-clicks depth=2>
+
+- **Installation & Betrieb von Kubernetes** wird hier nicht im Detail behandelt
+  - In der Praxis ist eine eigene Installation komplex (Netzwerk, Storage, Authentifizierung, High Availability, etc.)
+  - Für den Start besser eine **fertige lokale Lösung** verwenden
+  - Ich gehe heute nicht weiter auf multi Node, Skalierung, Netzwerke, Ressource Limits ein
+- Im **Produktivbetrieb** ist die Konfiguration aufwändig:
+  - **Netzwerk-Layer** (CNI-Plugin) muss ausgewählt und konfiguriert werden (z.B. Calico, Flannel, Cilium)
+  - Storage, Monitoring, Logging, RBAC, Security etc. müssen individuell angepasst werden
+- Update
+  - Kubernetes Update nicht so einfach wie `apt upgrade -y`
+  - (n + 1) Administratoren notwendig
+- **Empfohlene Tools für den Einstieg:**
+  - **Docker Desktop** (Windows/Mac): Startet schnell ein lokales Kubernetes-Cluster
+  - **Rancher Desktop**: Alternative zu Docker Desktop, ebenfalls mit integriertem Kubernetes
+
+</v-clicks>
+
+---
+
+# Deklarative Konfiguration
+
+<v-clicks depth=2>
+
+- Ressourcen als YAML definieren (Manifest)
+  - beschreiben Soll-Zustand
 - Cluster-Zustand wird automatisch angepasst
+- kann versioniert werden (git)
+- gitOps
+- Helm Charts für
+  - Templating der Manifeste
+  - Paketmanger für Anwendungen
 
-<!--
-Bei Kubernetes beschreiben wir den Soll-Zustand unserer Infrastruktur in YAML-Dateien.  
-Diese Definitionen können wir versionieren, gemeinsam pflegen und jederzeit nachvollziehen.
-Mit `kubectl apply` werden diese Beschreibungen an das Cluster übertragen – Kubernetes sorgt dafür, dass der reale Zustand zum Soll-Zustand passt.
--->
-
----
-
-# Die wichtigsten Ressourcen in Kubernetes
-
-- **Pod:**  
-  Kleinste deploybare Einheit, läuft ein oder mehrere Container
-- **Deployment:**  
-  Verwaltung und Rollout von stateless Anwendungen
-- **StatefulSet:**  
-  Verwaltung zustandsbehafteter Anwendungen, z.B. Datenbanken
-- **Service:**  
-  Stellt Netzwerkzugriff auf Pods bereit, sorgt für Load Balancing
-
-<!-- note:
-Die vier Ressourcen sind die Basis für fast alle Anwendungen in Kubernetes.
-Pods enthalten die Container.
-Deployments managen stateless Apps, kümmern sich um Updates/Rollbacks.
-StatefulSets sind für alles zuständig, was stabilen Speicher und feste Namen braucht (z.B. Datenbanken).
-Services verbinden die Pods miteinander und mit der Außenwelt.
--->
+</v-clicks>
 
 ---
 
@@ -121,8 +116,12 @@ spec:
         - containerPort: 80
 ```
 
-- Enthält Container mit gemeinsamem Netzwerk und Storage
-- Kurzlebig, wird meist über Deployment gemanaged
+- Kleinste deploybare Einheit in Kubernetes (für Container)
+- Mehrere Container pro Pod möglich (z. B. Sidecars)
+- Container teilen sich Netzwerk, IP & Volumes
+- Unterstützt Init-Container für vorbereitende Aufgaben
+- Pods sind ephemer – sie „leben nicht lange“
+- In der Praxis werden sie fast immer durch Controller gemanaged
 
 <!-- 
 Pods laufen direkt im Cluster, meistens mit einem Container (manchmal mehreren, wenn diese eng zusammengehören). Sie teilen sich Netzwerk und können gemeinsam auf Volumes zugreifen. Pods sind „kurzlebig“ – wenn sie sterben, werden sie meist von Deployments neu erzeugt.
@@ -130,7 +129,36 @@ Pods laufen direkt im Cluster, meistens mit einem Container (manchmal mehreren, 
 
 ---
 
+# Tools: kubectl & Lens
+
+<v-clicks depth=2>
+
+- **kubectl** ist das wichtigste Kubernetes-Werkzeug
+  - Mit kubectl werden Ressourcen erstellt, geändert, gelöscht, inspiziert
+  - Direkte Kommunikation mit dem Kubernetes API-Server
+  - Beispiel: `kubectl apply -f pod.yaml`
+  - Cluster-Zustand wird automatisch angepasst
+  - Löschen mit `kubectl delete -f <datei.yaml>`  
+    oder `kubectl delete pods my-pod-1`
+  - Autocomplete  
+    `kubectl completion powershell | Out-String | Invoke-Expression`
+- **Lens** als grafische IDE für die Demo
+  - Erlaubt visuelle Darstellung von Ressourcen und Logs
+  - Einfaches Anwenden von Manifesten per Klick
+
+</v-clicks>
+
+---
+
+# Demo
+
+---
+layout: two-cols-header
+---
+
 # Deployment
+
+::left::
 
 ```yaml
 apiVersion: apps/v1
@@ -155,6 +183,8 @@ spec:
               containerPort: 80
 ```
 
+::right::
+
 - Verwalten stateless Anwendungen (Webserver, API, Worker)
 - Sorgt für Skalierung, Updates und Selbstheilung
 
@@ -163,8 +193,12 @@ Deployments sind der Standard für stateless Anwendungen. Sie beschreiben, wie v
 -->
 
 ---
+layout: two-cols-header
+---
 
 # StatefulSet
+
+::left::
 
 ```yaml
 apiVersion: apps/v1
@@ -190,6 +224,11 @@ spec:
           volumeMounts:
             - name: postgres
               mountPath: /data
+```
+
+::right::
+
+```yaml
           env:
           - name: POSTGRES_PASSWORD
             value: admin
@@ -238,7 +277,7 @@ Services sorgen dafür, dass Pods im Cluster oder von außen erreichbar sind. Cl
 
 ---
 
-# Unterstützende Ressourcen: ConfigMap
+# ConfigMap
 
 ```yaml
 apiVersion: v1
@@ -253,6 +292,7 @@ data:
 - Speichert Konfiguration als Key/Value-Paare
 - Trennung von Code und Konfiguration
 - Kann als Umgebungsvariable oder Datei im Pod verwendet werden
+- Der Value kann auch eine ganze Datei sein. (< 1MB)
 
 <!-- 
 Mit ConfigMaps werden Umgebungsvariablen, Konfigurationsdateien usw. verwaltet. Der Code bleibt unverändert, die Konfiguration kann unabhängig davon angepasst werden. Im Pod können ConfigMaps als Umgebungsvariable oder als Datei gemountet werden.
@@ -260,7 +300,7 @@ Mit ConfigMaps werden Umgebungsvariablen, Konfigurationsdateien usw. verwaltet. 
 
 ---
 
-# Unterstützende Ressourcen: Secret
+# Secret
 
 ```yaml
 apiVersion: v1
@@ -281,8 +321,12 @@ Secrets werden ähnlich wie ConfigMaps benutzt, aber für sensible Daten wie Pas
 -->
 
 ---
+layout: two-cols-header
+---
 
-# Unterstützende Ressourcen: Volume & PersistentVolumeClaim
+# Volume & PersistentVolumeClaim
+
+::left::
 
 ```yaml
 apiVersion: v1
@@ -295,7 +339,15 @@ spec:
   resources:
     requests:
       storage: 1Gi
----
+```
+
+- Volumes: Speicher für Pods (z.B. für Logs oder Uploads)
+- PersistentVolumeClaim (PVC): Fordert persistenten Speicher an
+- Speicher bleibt über Pod-Neustarts erhalten
+
+::right::
+
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -313,13 +365,103 @@ spec:
         claimName: example-pvc
 ```
 
-- Volumes: Speicher für Pods (z.B. für Logs oder Uploads)
-- PersistentVolumeClaim (PVC): Fordert persistenten Speicher an
-- Speicher bleibt über Pod-Neustarts erhalten
-
 <!-- 
 Volumes sind notwendig, wenn Anwendungen im Container Daten dauerhaft speichern sollen. Mit einem PersistentVolumeClaim fordere ich Speicher vom Cluster an, z.B. für eine Datenbank oder Datei-Uploads. Im Pod wird das Volume eingebunden, sodass Container darauf zugreifen können – auch nach einem Pod-Restart bleibt der Speicher erhalten. 
 -->
+
+---
+layout: two-cols-header
+---
+
+# Zusammenfassung der wichtigsten Ressourcen in Kubernetes
+
+::left::
+
+- **Pod:**  
+  Kleinste deploybare Einheit, darin laufen ein oder mehrere Container
+- **Deployment:**  
+  Verwaltung und Rollout von stateless Anwendungen
+- **StatefulSet:**  
+  Verwaltung zustandsbehafteter Anwendungen, z.B. Datenbanken
+- **Service:**  
+  Stellt Netzwerkzugriff auf Pods bereit, sorgt für Load Balancing
+
+
+::right::
+
+- **ConfigMap:**  
+  Konfiguration als Key/Value-Paare
+- **Secret:**  
+  vertrauliche ConfigMap
+- **PersistentVolume** / **PersistentVolumeClaim**
+  bleibende Daten
+- **Volume**  
+  kurzfristige Daten
+
+
+---
+
+# CustomResourceDefinitions (CRDs)
+
+- API-Erweiterung: Ermöglichen neue, benutzerdefinierte Objekttypen (Custom Resources) in Kubernetes einzuführen
+- Schema-Definition: Eine CRD legt das Daten-Schema (Namen, Spezifikations-Felder) der neuen Ressource fest (JSON Schema)
+- Ohne Logik: Allein ermöglicht eine CRD nur Speicherung/Abruf dieser Daten – keine eigene Steuerungslogik oder Automatisierung
+
+---
+
+# Kubernetes Operatoren
+
+- Controller mit Domain-Wissen: Ein Operator ist ein spezieller Kubernetes-Controller, der eine Custom Resource überwacht und basierend darauf Aktionen im Cluster ausführt
+- Kontrollschleife: Er folgt dem Kubernetes-Control Loop-Prinzip: vergleicht den Soll-Zustand (aus der CR-Spezifikation) mit dem Ist-Zustand und korrigiert Abweichungen automatisch
+- Automatisierung: Verpackt Operations-Wissen als Code, um komplexe Aufgaben (z.B. Backups, Skalierung, Updates) automatisch und standardisiert durchzuführen
+- Erweiterbarkeit: Durch CRDs + Operatoren lässt sich Kubernetes um neue Funktionen erweitern, ohne den Kubernetes-Core zu verändern
+
+---
+
+# Flux – GitOps mit CRDs & modularen Controllern
+
+- Flux besteht aus mehreren spezialisierten Controllern:
+  - `source-controller`: verwaltet Git-Repositories & Helm-Repos
+  - `kustomize-controller`: kümmert sich um Kustomization-Deployments
+  - `helm-controller`: für Helm Releases
+- Diese arbeiten auf Basis von **Custom Resources (CRDs)** wie:
+  - `GitRepository`, `Kustomization`, `HelmRelease` etc.
+- Jeder Controller beobachtet „seine“ Ressourcen und gleicht Soll- mit Ist-Zustand ab
+
+<!-- note:
+Flux ist nicht ein einzelner Operator, sondern eine modulare Sammlung spezialisierter Controller.  
+Jeder Controller beobachtet bestimmte CRDs – zum Beispiel kümmert sich der `source-controller` um `GitRepository`-Ressourcen.  
+Diese beschreiben, welches Git-Repo, welcher Branch oder welches Helm-Chart die Quelle der Wahrheit für Konfigurationen ist.  
+
+Der `kustomize-controller` übernimmt dann die eigentliche Anwendung dieser Konfigurationen im Cluster – er liest Kustomization-Ressourcen und führt sie aus.  
+Optional kann auch der `helm-controller` Helm-Charts installieren.  
+
+Das Prinzip: Jede Ressource in Git wird zu einer CRD im Cluster, die von genau einem passenden Controller ausgewertet wird.  
+Änderungen im Git führen – indirekt, aber automatisch – zu synchronisierten Deployments.
+-->
+
+---
+
+# Live-Demo mit Flux
+
+**Ziel:**
+- nginx wird automatisch via Flux ausgerollt
+- Die HTML-Seite kommt aus einer ConfigMap
+- Änderungen im Git führen zu einem neuen Deploy
+
+**Was passiert:**
+1. ConfigMap & Deployment im Git
+2. Kustomization beschreibt Anwendung
+3. Flux synchronisiert → nginx zeigt den Text
+
+<!-- note:
+Ich habe Flux bereits eingerichtet.  
+Jetzt zeige ich euch, wie eine einfache App – ein nginx – über Git deployed wird.  
+Der Clou: Der HTML-Inhalt liegt nicht im Image, sondern kommt aus einer ConfigMap.  
+Wir werden sehen, wie Flux Änderungen erkennt und automatisch neu deployed.
+-->
+
+
 
 ---
 

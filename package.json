@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@slidev/cli": "^51.8.1",
+    "@slidev/theme-apple-basic": "^0.25.1",
     "@slidev/theme-bricks": "^0.25.0",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
+    "slidev-theme-dracula": "^0.2.0",
     "vue": "^3.5.16"
   }
 }
