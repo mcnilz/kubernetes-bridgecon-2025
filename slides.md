@@ -513,9 +513,20 @@ Wir werden sehen, wie Flux Änderungen erkennt und automatisch neu deployed.
 ---
 layout: center
 ---
+
+<div style="text-align: center">
+
 # Ende
 
-![mic drop](/mic-drop.gif)
+<img style="display: inline-block" src="/mic-drop.gif" />
+
+https://github.com/mcnilz/kubernetes-bridgecon-2025
+
+<p style="font-size: 0.8em; color: gray;">
+Diese Präsentation wurde mit Unterstützung von <strong>ChatGPT</strong> erstellt ✨
+</p>
+
+</div>
 
 ---
 
