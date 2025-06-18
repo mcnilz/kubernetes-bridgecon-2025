@@ -520,7 +520,7 @@ layout: center
 
 <img style="display: inline-block" src="/mic-drop.gif" />
 
-https://github.com/mcnilz/kubernetes-bridgecon-2025
+https://mcnilz.github.io/kubernetes-bridgecon-2025/
 
 <p style="font-size: 0.8em; color: gray;">
 Diese Präsentation wurde mit Unterstützung von <strong>ChatGPT</strong> erstellt ✨
