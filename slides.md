@@ -22,16 +22,19 @@ Zielgruppe Entwickler mit Docker-Erfahrung
 
 ---
 
-## Agenda
+# Agenda
 
-- Warum Kubernetes?
-- Einstieg & Installation: Praxis-Tipps
-- Deklarative Konfiguration & Anwendung mit kubectl
-- Basis-Ressourcen: Pod, Deployment, StatefulSet, Service
-- Konfigurations- und Speicherressourcen: ConfigMap, Secret, Volumes
-- Tools: kubectl & Lens
-- (Live-Demo: Ressourcen anwenden & beobachten)
-- Q&A & Nachfragen
+- Was ist Kubernetes und warum?
+- Einstieg & Installation
+- Deklarative Konfiguration & Tools
+- Basis-Ressourcen im Cluster
+  - Pod, Deployment, StatefulSet, Service
+- Konfigurations- & Speicherelemente
+  - ConfigMap, Secret, Volume, PVC
+- Erweiterbarkeit mit CRDs & Operatoren
+- GitOps mit Flux (Live-Demo)
+- Fragen & Diskussion
+
 
 ---
 
@@ -62,23 +65,37 @@ Zielgruppe Entwickler mit Docker-Erfahrung
 
 ---
 
-# Einstieg & Installation: Praxis-Tipps
+# Installation
 
 <v-clicks depth=2>
 
-- **Installation & Betrieb von Kubernetes** wird hier nicht im Detail behandelt
-  - In der Praxis ist eine eigene Installation komplex (Netzwerk, Storage, Authentifizierung, High Availability, etc.)
-  - Für den Start besser eine **fertige lokale Lösung** verwenden
-  - Ich gehe heute nicht weiter auf multi Node, Skalierung, Netzwerke, Ressource Limits ein
+- **Installation & Betrieb von Kubernetes**
+  - In der Praxis ist eine eigene Installation komplex
+  - Für den Start besser eine **fertige lokale Lösung** verwenden  
+    K3s, RKE2, ... oder Managed Cloud Provider (AWS, Azure, GCP)
 - Im **Produktivbetrieb** ist die Konfiguration aufwändig:
   - **Netzwerk-Layer** (CNI-Plugin) muss ausgewählt und konfiguriert werden (z.B. Calico, Flannel, Cilium)
   - Storage, Monitoring, Logging, RBAC, Security etc. müssen individuell angepasst werden
-- Update
-  - Kubernetes Update nicht so einfach wie `apt upgrade -y`
-  - (n + 1) Administratoren notwendig
-- **Empfohlene Tools für den Einstieg:**
-  - **Docker Desktop** (Windows/Mac): Startet schnell ein lokales Kubernetes-Cluster
-  - **Rancher Desktop**: Alternative zu Docker Desktop, ebenfalls mit integriertem Kubernetes
+  - Multi node, Ressource Limits, Skalierung, High Availability (HA)
+  - Update
+    - Kubernetes Update nicht so einfach wie `apt upgrade -y`
+    - (n + 1) Administratoren notwendig
+  - heute nicht
+
+</v-clicks>
+
+---
+
+# Einstieg
+
+<v-clicks depth=2>
+
+- **Docker Desktop** (Windows/Mac)  
+  Startet schnell ein lokalen Kubernetes-Cluster
+- **Rancher Desktop** (Windows/Mac/Linux)  
+  Alternative zu Docker Desktop, ebenfalls mit integriertem Kubernetes
+- minikube
+- kind
 
 </v-clicks>
 
@@ -92,7 +109,7 @@ Zielgruppe Entwickler mit Docker-Erfahrung
   - beschreiben Soll-Zustand
 - Cluster-Zustand wird automatisch angepasst
 - kann versioniert werden (git)
-- gitOps
+- Grundvoraussetzung für GitOps
 - Helm Charts für
   - Templating der Manifeste
   - Paketmanger für Anwendungen
@@ -123,10 +140,6 @@ spec:
 - Pods sind ephemer – sie „leben nicht lange“
 - In der Praxis werden sie fast immer durch Controller gemanaged
 
-<!-- 
-Pods laufen direkt im Cluster, meistens mit einem Container (manchmal mehreren, wenn diese eng zusammengehören). Sie teilen sich Netzwerk und können gemeinsam auf Volumes zugreifen. Pods sind „kurzlebig“ – wenn sie sterben, werden sie meist von Deployments neu erzeugt.
--->
-
 ---
 
 # Tools: kubectl & Lens
@@ -145,12 +158,30 @@ Pods laufen direkt im Cluster, meistens mit einem Container (manchmal mehreren, 
 - **Lens** als grafische IDE für die Demo
   - Erlaubt visuelle Darstellung von Ressourcen und Logs
   - Einfaches Anwenden von Manifesten per Klick
+  - unter $10M Umsatz free tier
 
 </v-clicks>
 
 ---
 
 # Demo
+
+in Lens
+
+**Pod**
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: whoami-pod
+spec:
+  containers:
+    - name: whoami
+      image: docker.io/traefik/whoami
+      ports:
+        - containerPort: 80
+```
 
 ---
 layout: two-cols-header
@@ -269,11 +300,9 @@ spec:
 ```
 
 - Macht Pods im Cluster auffindbar und erreichbar
+- nutzt Label-Selector-Prinzip
 - Verschiedene Typen: ClusterIP, NodePort, LoadBalancer
-
-<!-- 
-Services sorgen dafür, dass Pods im Cluster oder von außen erreichbar sind. ClusterIP ist nur intern sichtbar, NodePort öffnet einen Port auf jedem Node, LoadBalancer nutzt Cloud-Loadbalancer. Der Service findet automatisch alle passenden Pods über das Label-Selector-Prinzip.
--->
+- `curl http://localhost/`
 
 ---
 
@@ -418,11 +447,36 @@ layout: two-cols-header
 
 ---
 
-# Flux – GitOps mit CRDs & modularen Controllern
+# Beispiele für populäre & Operatoren
+
+- **Sealed Secrets**  
+  → Operator verschlüsselt/dechiffriert Secrets serverseitig
+
+- **Gateway API**  
+  → Ermöglicht flexibles Routing auf Cluster‑Ebene
+
+- **Prometheus Operator**  
+  → Automatisches Setup von Monitoring & Alerting
+
+- **External Secrets Operator**  
+  → Synchronisiert Secrets aus AWS, Vault, Azure, GCP etc.
+
+- **Redis/Kafka/TiDB Operators**  
+  → CRDs für Datenbank‑Cluster
+  → Automatisieren Provisioning, Skalierung, Backup, Recovery
+
+- **Keycloak Operator**    
+  → Automatisiert Provisionierung von Keycloak, Realms, Clients, DB, TLS etc. :contentReference[oaicite:4]{index=4}
+
+- **Flux**
+
+---
+
+# Flux – GitOps
 
 - Flux besteht aus mehreren spezialisierten Controllern:
   - `source-controller`: verwaltet Git-Repositories & Helm-Repos
-  - `kustomize-controller`: kümmert sich um Kustomization-Deployments
+  - `kustomize-controller`: kümmert sich um Kustomization-Deployments (und YAML Manifeste)
   - `helm-controller`: für Helm Releases
 - Diese arbeiten auf Basis von **Custom Resources (CRDs)** wie:
   - `GitRepository`, `Kustomization`, `HelmRelease` etc.
@@ -444,15 +498,10 @@ Das Prinzip: Jede Ressource in Git wird zu einer CRD im Cluster, die von genau e
 
 # Live-Demo mit Flux
 
-**Ziel:**
-- nginx wird automatisch via Flux ausgerollt
-- Die HTML-Seite kommt aus einer ConfigMap
-- Änderungen im Git führen zu einem neuen Deploy
-
-**Was passiert:**
-1. ConfigMap & Deployment im Git
-2. Kustomization beschreibt Anwendung
-3. Flux synchronisiert → nginx zeigt den Text
+- Flux schon installiert (namespace: `flux-system`)
+- Anwendung schon ausgerollt (namespace: `flux-demo`)
+- https://github.com/mcnilz/flux-demo
+- Änderungen im Git führen zu einem neuen Deployment
 
 <!-- note:
 Ich habe Flux bereits eingerichtet.  
@@ -461,11 +510,12 @@ Der Clou: Der HTML-Inhalt liegt nicht im Image, sondern kommt aus einer ConfigMa
 Wir werden sehen, wie Flux Änderungen erkennt und automatisch neu deployed.
 -->
 
-
-
 ---
-
+layout: center
+---
 # Ende
+
+![mic drop](/mic-drop.gif)
 
 ---
 
