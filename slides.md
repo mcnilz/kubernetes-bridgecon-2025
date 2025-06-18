@@ -35,6 +35,20 @@ Zielgruppe Entwickler mit Docker-Erfahrung
 - GitOps mit Flux (Live-Demo)
 - Fragen & Diskussion
 
+---
+
+# Was ist Kubernetes?
+
+<v-clicks>
+
+- Kubernetes ist eine **Plattform zur Orchestrierung von Containern**
+- Es verwaltet **Bereitstellung, Skalierung und Ausfallsicherheit** von Anwendungen
+- Ziel: *"gewünschten Zustand herstellen und erhalten"*
+- Inspiriert von Google’s interner Infrastruktur (Borg)
+- Kernidee: Infrastruktur als Code – deklarativ & automatisiert
+
+</v-clicks>
+
 
 ---
 
