@@ -85,7 +85,7 @@ Zielgruppe Entwickler mit Docker-Erfahrung
 
 - **Installation & Betrieb von Kubernetes**
   - In der Praxis ist eine eigene Installation (mit kubeadm) komplex
-  - Für den Start besser eine **fertige lokale Lösung** verwenden  
+  - Für den Start besser eine **fertige Lösung** verwenden  
     K3s, RKE2, ... oder Managed Cloud Provider (AWS, Azure, GCP)
 - Im **Produktivbetrieb** ist die Konfiguration aufwändig:
   - **Netzwerk-Layer** (CNI-Plugin) muss ausgewählt und konfiguriert werden (z.B. Calico, Flannel, Cilium)
