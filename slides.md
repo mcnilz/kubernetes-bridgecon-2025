@@ -478,8 +478,8 @@ layout: two-cols-header
   → CRDs für Datenbank‑Cluster
   → Automatisieren Provisioning, Skalierung, Backup, Recovery
 
-- **Keycloak Operator**    
-  → Automatisiert Provisionierung von Keycloak, Realms, Clients, DB, TLS etc. :contentReference[oaicite:4]{index=4}
+- **Keycloak Operator**  
+  → Automatisiert Provisionierung von Keycloak, Realms, Clients, ...
 
 - **Flux**
 
