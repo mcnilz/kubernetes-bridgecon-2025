@@ -91,9 +91,8 @@ Zielgruppe Entwickler mit Docker-Erfahrung
   - **Netzwerk-Layer** (CNI-Plugin) muss ausgewählt und konfiguriert werden (z.B. Calico, Flannel, Cilium)
   - Storage, Monitoring, Logging, RBAC, Security etc. müssen individuell angepasst werden
   - Multi node, Ressource Limits, Skalierung, High Availability (HA)
-  - Update
-    - Kubernetes Update nicht so einfach wie `apt upgrade -y`
-    - (n + 1) Administratoren notwendig
+  - Kubernetes Update nicht so einfach wie `apt upgrade -y`
+  - (n + 1) Administratoren notwendig
   - heute nicht
 
 </v-clicks>
@@ -151,7 +150,7 @@ spec:
 - Mehrere Container pro Pod möglich (z. B. Sidecars)
 - Container teilen sich Netzwerk, IP & Volumes
 - Unterstützt Init-Container für vorbereitende Aufgaben
-- Pods sind ephemer – sie „leben nicht lange“
+- Pods sind kurzlebig
 - In der Praxis werden sie fast immer durch Controller gemanaged
 
 ---
